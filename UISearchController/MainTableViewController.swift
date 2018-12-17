@@ -10,27 +10,26 @@ import UIKit
 
 class MainTableViewController: UITableViewController {
     
-    var restaurants = [Restaurant]()
+    let restaurants = [
+        Restaurant(name: "Балкан Гриль", type: .restaurant),
+        Restaurant(name: "Бочка", type: .bar),
+        Restaurant(name: "Вкусные истории", type: .restaurant),
+        Restaurant(name: "Дастархан", type: .fastfood),
+        Restaurant(name: "Индокитай", type: .fastfood),
+        Restaurant(name: "Классик", type: .restaurant),
+        Restaurant(name: "Шок", type: .bar),
+        Restaurant(name: "Bonsai", type: .restaurant),
+        Restaurant(name: "Burger Heroes", type: .fastfood),
+        Restaurant(name: "Kitchen", type: .restaurant),
+        Restaurant(name: "Love&Life", type: .restaurant),
+        Restaurant(name: "Morris Pub", type: .bar),
+        Restaurant(name: "Speak Easy", type: .restaurant),
+        Restaurant(name: "X.O", type: .bar)
+    ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        restaurants = [
-            Restaurant(name: "Балкан Гриль", type: .restaurant),
-            Restaurant(name: "Бочка", type: .bar),
-            Restaurant(name: "Вкусные истории", type: .restaurant),
-            Restaurant(name: "Дастархан", type: .fastfood),
-            Restaurant(name: "Индокитай", type: .fastfood),
-            Restaurant(name: "Классик", type: .restaurant),
-            Restaurant(name: "Шок", type: .bar),
-            Restaurant(name: "Bonsai", type: .restaurant),
-            Restaurant(name: "Burger Heroes", type: .fastfood),
-            Restaurant(name: "Kitchen", type: .restaurant),
-            Restaurant(name: "Love&Life", type: .restaurant),
-            Restaurant(name: "Morris Pub", type: .bar),
-            Restaurant(name: "Speak Easy", type: .restaurant),
-            Restaurant(name: "X.O", type: .bar)
-        ]
         
     }
 
@@ -57,7 +56,7 @@ class MainTableViewController: UITableViewController {
         if segue.identifier == "showDetail" {
             if let indexPath = tableView.indexPathForSelectedRow {
                 let detailVC = segue.destination as! DetailViewController
-                detailVC.restaurantName = restaurants[indexPath.row].name
+                detailVC.restaurant = restaurants[indexPath.row]
             }
         }
     }
