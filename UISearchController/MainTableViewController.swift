@@ -33,7 +33,8 @@ class MainTableViewController: UITableViewController {
         return text.isEmpty
     }
     private var isFiltering: Bool {
-        return searchController.isActive && !searchBarIsEmpty
+        let searchBarScopeIsFiltering = searchController.searchBar.selectedScopeButtonIndex != 0
+        return searchController.isActive && (!searchBarIsEmpty || searchBarScopeIsFiltering)
     }
 
     override func viewDidLoad() {
@@ -45,6 +46,10 @@ class MainTableViewController: UITableViewController {
         searchController.searchBar.placeholder = "Search"
         navigationItem.searchController = searchController
         definesPresentationContext = true
+        
+        // Setup the Scope Bar
+        searchController.searchBar.scopeButtonTitles = ["All", "Restaurant", "Fastfood", "Bar"]
+        searchController.searchBar.delegate = self
     }
 
     // MARK: - Table view data source
@@ -96,16 +101,32 @@ class MainTableViewController: UITableViewController {
 extension MainTableViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
-        filterContentForSearchText(searchController.searchBar.text!)
+        let searchBar = searchController.searchBar
+        let scope = searchBar.scopeButtonTitles![searchBar.selectedScopeButtonIndex]
+        filterContentForSearchText(searchController.searchBar.text!, scope: scope)
     }
     
-    private func filterContentForSearchText(_ searchText: String) {
+    private func filterContentForSearchText(_ searchText: String, scope: String = "All") {
         
-        filteredRestaurants = restaurants.filter({ (restaurant: Restaurant) -> Bool in
-            return restaurant.name.lowercased().contains(searchText.lowercased())
+        filteredRestaurants = restaurants.filter({ (restaurant) -> Bool in
+            
+            let doesCategoryMatch = (scope == "All") || (restaurant.type.rawValue == scope)
+            
+            if searchBarIsEmpty {
+                return doesCategoryMatch
+            }
+            
+            return doesCategoryMatch && restaurant.name.lowercased().contains(searchText.lowercased())
         })
         
         tableView.reloadData()
     }
 }
 
+// MARK: - UISearchBar Delegate
+extension MainTableViewController: UISearchBarDelegate {
+   
+    func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
+        filterContentForSearchText(searchBar.text!, scope: searchBar.scopeButtonTitles![selectedScope])
+    }
+}
