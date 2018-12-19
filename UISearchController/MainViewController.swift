@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MainTableViewController: UITableViewController {
+class MainViewController: UIViewController, UITableViewDataSource {
     
     private let restaurants = [
         Restaurant(name: "Балкан Гриль", type: .restaurant),
@@ -37,6 +37,9 @@ class MainTableViewController: UITableViewController {
         return searchController.isActive && (!searchBarIsEmpty || searchBarScopeIsFiltering)
     }
 
+    @IBOutlet var tableView: UITableView!
+    @IBOutlet var searchFooter: SearchFooter!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -50,18 +53,23 @@ class MainTableViewController: UITableViewController {
         // Setup the Scope Bar
         searchController.searchBar.scopeButtonTitles = ["All", "Restaurant", "Fastfood", "Bar"]
         searchController.searchBar.delegate = self
+        
+        // Setup the search footer
+        tableView.tableFooterView = searchFooter
     }
 
     // MARK: - Table view data source
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if isFiltering {
+            searchFooter.setIsFilteringToShow(filteredItemCount: filteredRestaurants.count, of: restaurants.count)
             return filteredRestaurants.count
         }
+        searchFooter.setNotFiltering()
         return restaurants.count
     }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         
         var restaurant: Restaurant
@@ -79,7 +87,6 @@ class MainTableViewController: UITableViewController {
     }
 
     // MARK: - Navigation
-
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
             if let indexPath = tableView.indexPathForSelectedRow {
@@ -98,7 +105,7 @@ class MainTableViewController: UITableViewController {
 }
 
 // MARK: - UISearchResultsUpdating Delegate
-extension MainTableViewController: UISearchResultsUpdating {
+extension MainViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
         let searchBar = searchController.searchBar
@@ -124,7 +131,7 @@ extension MainTableViewController: UISearchResultsUpdating {
 }
 
 // MARK: - UISearchBar Delegate
-extension MainTableViewController: UISearchBarDelegate {
+extension MainViewController: UISearchBarDelegate {
    
     func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
         filterContentForSearchText(searchBar.text!, scope: searchBar.scopeButtonTitles![selectedScope])
